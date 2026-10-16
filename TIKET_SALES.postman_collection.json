@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "tiket-sales-api-collection",
+    "_postman_id": "35934486-94a4-48b8-9935-7cef9c7e48c8",
     "name": "TIKET SALES API",
     "description": "Koleksi lengkap semua endpoint API Tiket Sales. Server berjalan di http://localhost:8000.\n\n## Cara Penggunaan\n1. Import file ini ke Postman / Postman di VS Code\n2. Pastikan variable `baseUrl` = `http://localhost:8000` (sudah diset)\n3. Login dulu via POST /auth/ (admin) atau POST /auth/user (user)\n4. Salin token dari response ke variable `adminToken` atau `userToken`\n5. Semua endpoint protected sudah otomatis pakai variable token tersebut di header Authorization\n\n## Catatan Migrasi\nJika tabel reviews / subdistricts belum ada, jalankan: npx sequelize-cli db:migrate\n\n## Daftar Endpoint\n- AUTH: 2 endpoint\n- USER: 11 endpoint\n- EVENT: 8 endpoint\n- SEAT: 7 endpoint\n- TICKET: 5 endpoint\n- DISKON: 5 endpoint\n- REVIEW: 3 endpoint\n- SUBDISTRICT: 5 endpoint\n\nTotal: 46 endpoint",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"

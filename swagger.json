@@ -1,0 +1,2711 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Tiket Sales API",
+    "version": "1.0.0",
+    "description": "Dokumentasi lengkap REST API sistem penjualan tiket. Untuk endpoint yang memerlukan autentikasi, login terlebih dahulu via **POST /auth/** (admin) atau **POST /auth/user** (user), lalu klik tombol **Authorize** di kanan atas dan masukkan token dengan format: `Bearer <token>`"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Masukkan JWT token yang didapat dari endpoint login"
+      }
+    },
+    "schemas": {
+      "LoginAdminRequest": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "example": "admin123"
+          }
+        }
+      },
+      "LoginUserRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "logged": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Authentication Success"
+          },
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "integer",
+            "example": 1
+          },
+          "firstname": {
+            "type": "string",
+            "example": "Budi"
+          },
+          "lastname": {
+            "type": "string",
+            "example": "Santoso"
+          },
+          "email": {
+            "type": "string",
+            "example": "budi@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "user"
+            ],
+            "example": "user"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "UserRequest": {
+        "type": "object",
+        "required": [
+          "firstname",
+          "lastname",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "firstname": {
+            "type": "string",
+            "example": "Budi"
+          },
+          "lastname": {
+            "type": "string",
+            "example": "Santoso"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "budi@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "user"
+            ],
+            "example": "user",
+            "description": "Opsional, default: user"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "properties": {
+          "password": {
+            "type": "string",
+            "example": "newpassword123"
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "eventID": {
+            "type": "integer",
+            "example": 1
+          },
+          "eventName": {
+            "type": "string",
+            "example": "Konser Malam Minggu"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-12-31"
+          },
+          "venue": {
+            "type": "string",
+            "example": "Gelora Bung Karno"
+          },
+          "price": {
+            "type": "integer",
+            "example": 150000
+          },
+          "image": {
+            "type": "string",
+            "example": "cover-1785751135614.png"
+          }
+        }
+      },
+      "Seat": {
+        "type": "object",
+        "properties": {
+          "seatID": {
+            "type": "integer",
+            "example": 1
+          },
+          "eventID": {
+            "type": "integer",
+            "example": 1
+          },
+          "rowNum": {
+            "type": "string",
+            "example": "A"
+          },
+          "seatNum": {
+            "type": "integer",
+            "example": 1
+          },
+          "status": {
+            "type": "boolean",
+            "example": false,
+            "description": "false = tersedia, true = terisi"
+          }
+        }
+      },
+      "SeatRequest": {
+        "type": "object",
+        "required": [
+          "eventID",
+          "rowNum",
+          "seatNum"
+        ],
+        "properties": {
+          "eventID": {
+            "type": "integer",
+            "example": 1
+          },
+          "rowNum": {
+            "type": "string",
+            "example": "A"
+          },
+          "seatNum": {
+            "type": "integer",
+            "example": 1
+          },
+          "status": {
+            "type": "boolean",
+            "example": false,
+            "description": "Opsional, default: false"
+          }
+        }
+      },
+      "Ticket": {
+        "type": "object",
+        "properties": {
+          "ticketID": {
+            "type": "integer",
+            "example": 1
+          },
+          "eventID": {
+            "type": "integer",
+            "example": 1
+          },
+          "userID": {
+            "type": "integer",
+            "example": 2
+          },
+          "seatID": {
+            "type": "integer",
+            "example": 5
+          },
+          "id_diskon": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "totalPrice": {
+            "type": "number",
+            "example": 100000
+          },
+          "bookedDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TicketRequest": {
+        "type": "object",
+        "required": [
+          "eventID",
+          "seats"
+        ],
+        "properties": {
+          "eventID": {
+            "type": "integer",
+            "example": 1
+          },
+          "userID": {
+            "type": "integer",
+            "example": 2,
+            "description": "Hanya untuk Admin — user otomatis dari token"
+          },
+          "seats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "rowNum",
+                "seatNum"
+              ],
+              "properties": {
+                "rowNum": {
+                  "type": "string",
+                  "example": "A"
+                },
+                "seatNum": {
+                  "type": "integer",
+                  "example": 1
+                }
+              }
+            },
+            "example": [
+              {
+                "rowNum": "A",
+                "seatNum": 1
+              },
+              {
+                "rowNum": "A",
+                "seatNum": 2
+              }
+            ]
+          },
+          "id_diskon": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1,
+            "description": "Opsional — ID diskon yang akan diterapkan"
+          }
+        }
+      },
+      "Diskon": {
+        "type": "object",
+        "properties": {
+          "id_diskon": {
+            "type": "integer",
+            "example": 1
+          },
+          "nama_diskon": {
+            "type": "string",
+            "example": "Promo Lebaran"
+          },
+          "nominal": {
+            "type": "integer",
+            "example": 50000
+          },
+          "tanggal_berlaku": {
+            "type": "string",
+            "format": "date",
+            "example": "2027-04-01"
+          },
+          "eventID": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          }
+        }
+      },
+      "DiskonRequest": {
+        "type": "object",
+        "required": [
+          "nama_diskon",
+          "nominal",
+          "tanggal_berlaku"
+        ],
+        "properties": {
+          "nama_diskon": {
+            "type": "string",
+            "example": "Promo Lebaran"
+          },
+          "nominal": {
+            "type": "integer",
+            "example": 50000
+          },
+          "tanggal_berlaku": {
+            "type": "string",
+            "format": "date",
+            "example": "2027-04-01"
+          },
+          "eventID": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1,
+            "description": "Opsional — jika diisi, diskon hanya berlaku untuk event ini"
+          }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "reviewID": {
+            "type": "integer",
+            "example": 1
+          },
+          "userID": {
+            "type": "integer",
+            "example": 2
+          },
+          "eventID": {
+            "type": "integer",
+            "example": 1
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "example": "Event yang sangat bagus!"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ReviewRequest": {
+        "type": "object",
+        "required": [
+          "rating"
+        ],
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "example": "Event yang sangat bagus!"
+          }
+        }
+      },
+      "Subdistrict": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "subdistrict_id": {
+            "type": "string",
+            "example": "1"
+          },
+          "province_id": {
+            "type": "string",
+            "example": "11"
+          },
+          "province": {
+            "type": "string",
+            "example": "Aceh"
+          },
+          "city_id": {
+            "type": "string",
+            "example": "1"
+          },
+          "city": {
+            "type": "string",
+            "example": "Aceh Barat"
+          },
+          "type": {
+            "type": "string",
+            "example": "Kabupaten"
+          },
+          "subdistrict_name": {
+            "type": "string",
+            "example": "Johan Pahlawan"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SubdistrictRequest": {
+        "type": "object",
+        "required": [
+          "subdistrict_id",
+          "province_id",
+          "province",
+          "city_id",
+          "city",
+          "type",
+          "subdistrict_name"
+        ],
+        "properties": {
+          "subdistrict_id": {
+            "type": "string",
+            "example": "1"
+          },
+          "province_id": {
+            "type": "string",
+            "example": "11"
+          },
+          "province": {
+            "type": "string",
+            "example": "Aceh"
+          },
+          "city_id": {
+            "type": "string",
+            "example": "1"
+          },
+          "city": {
+            "type": "string",
+            "example": "Aceh Barat"
+          },
+          "type": {
+            "type": "string",
+            "example": "Kabupaten"
+          },
+          "subdistrict_name": {
+            "type": "string",
+            "example": "Johan Pahlawan"
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Operation successful"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Error description"
+          }
+        }
+      },
+      "UnauthorizedResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "auth": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "User Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Autentikasi admin dan user"
+    },
+    {
+      "name": "User",
+      "description": "Manajemen data pengguna"
+    },
+    {
+      "name": "Event",
+      "description": "Manajemen event / pertunjukan"
+    },
+    {
+      "name": "Seat",
+      "description": "Manajemen kursi event"
+    },
+    {
+      "name": "Ticket",
+      "description": "Pembelian dan manajemen tiket"
+    },
+    {
+      "name": "Diskon",
+      "description": "Manajemen kode diskon"
+    },
+    {
+      "name": "Review",
+      "description": "Ulasan event oleh user"
+    },
+    {
+      "name": "Subdistrict",
+      "description": "Manajemen data kecamatan / wilayah"
+    }
+  ],
+  "paths": {
+    "/user/register": {
+      "post": {
+        "summary": "Registrasi user baru",
+        "description": "Endpoint publik untuk registrasi akun user baru. Tidak memerlukan token.",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registrasi berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Registration successful"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validasi input gagal",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "First Name is required, Invalid email address"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/": {
+      "get": {
+        "summary": "Ambil semua user",
+        "description": "Mengembalikan daftar seluruh user yang terdaftar. Hanya dapat diakses oleh Admin.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar user berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token tidak valid atau tidak ada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Tambah user baru (Admin)",
+        "description": "Menambahkan user baru oleh Admin. Memerlukan token Admin.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User berhasil ditambahkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "New user has been inserted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/user/profile": {
+      "get": {
+        "summary": "Ambil profil sendiri",
+        "description": "Mengembalikan profil user yang sedang login berdasarkan JWT token. Admin dan user bisa mengakses.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profil berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/user/profile/{id}": {
+      "get": {
+        "summary": "Ambil profil user berdasarkan ID",
+        "description": "Admin dapat melihat profil user manapun. User hanya dapat melihat profil miliknya sendiri.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID user yang ingin dilihat",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profil berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/user/search/{key}": {
+      "get": {
+        "summary": "Cari user berdasarkan keyword",
+        "description": "Mencari user berdasarkan nama, email, atau role secara substring. Hanya Admin.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Kata kunci pencarian",
+            "example": "budi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hasil pencarian berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/user/reset-password/{id}": {
+      "put": {
+        "summary": "Reset password user (Admin)",
+        "description": "Mereset password user berdasarkan ID. Hanya Admin.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID user",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password berhasil direset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "put": {
+        "summary": "Update data user (Admin)",
+        "description": "Memperbarui data user berdasarkan ID. Hanya Admin.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID user",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User berhasil diupdate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Hapus user (Admin)",
+        "description": "Menghapus user berdasarkan ID. Hanya Admin.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID user",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User berhasil dihapus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/user/ticket/cancel/{id}": {
+      "delete": {
+        "summary": "Batalkan tiket (Admin & User)",
+        "description": "Membatalkan tiket berdasarkan ticketID. Seat terkait juga ikut dihapus dari database.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID tiket yang akan dibatalkan",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tiket berhasil dibatalkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/ticket/": {
+      "post": {
+        "summary": "Beli tiket",
+        "description": "Membeli tiket untuk satu atau beberapa kursi sekaligus. \n**Untuk User:** `userID` otomatis diambil dari token JWT, tidak perlu diisi.\n**Untuk Admin:** bisa menentukan `userID` untuk memesan atas nama user lain.\nSistem otomatis membuat record seat di tabel seats untuk setiap kursi yang dipesan. Field `id_diskon` opsional — jika diisi, diskon akan divalidasi (tidak expired, sesuai event) dan diterapkan ke harga.\n",
+        "tags": [
+          "Ticket"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketRequest"
+              },
+              "examples": {
+                "user_tanpa_diskon": {
+                  "summary": "Pembelian oleh User (tanpa diskon)",
+                  "value": {
+                    "eventID": 1,
+                    "seats": [
+                      {
+                        "rowNum": "A",
+                        "seatNum": 1
+                      },
+                      {
+                        "rowNum": "A",
+                        "seatNum": 2
+                      }
+                    ]
+                  }
+                },
+                "admin_dengan_diskon": {
+                  "summary": "Pembelian oleh Admin (dengan diskon)",
+                  "value": {
+                    "eventID": 1,
+                    "userID": 2,
+                    "seats": [
+                      {
+                        "rowNum": "B",
+                        "seatNum": 3
+                      }
+                    ],
+                    "id_diskon": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tiket berhasil dibeli",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Ticket"
+                      }
+                    },
+                    "priceDetail": {
+                      "type": "object",
+                      "properties": {
+                        "originalPrice": {
+                          "type": "integer",
+                          "example": 150000
+                        },
+                        "discount": {
+                          "type": "integer",
+                          "example": 50000
+                        },
+                        "priceAfterDiscount": {
+                          "type": "integer",
+                          "example": 100000
+                        },
+                        "totalSeats": {
+                          "type": "integer",
+                          "example": 2
+                        },
+                        "grandTotal": {
+                          "type": "integer",
+                          "example": 200000
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      },
+      "get": {
+        "summary": "Ambil semua tiket",
+        "description": "**Admin:** melihat semua tiket dari semua user.\n**User:** hanya melihat tiket miliknya sendiri (filter otomatis dari token JWT).\n",
+        "tags": [
+          "Ticket"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data tiket berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Ticket"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/ticket/user/{id}": {
+      "get": {
+        "summary": "Ambil tiket berdasarkan user ID",
+        "description": "Riwayat pembelian tiket untuk user tertentu. User hanya dapat melihat tiket miliknya sendiri (ID di URL divalidasi vs token JWT).\n",
+        "tags": [
+          "Ticket"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID user",
+            "example": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Riwayat tiket berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Ticket"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/ticket/cancel/{id}": {
+      "delete": {
+        "summary": "Batalkan tiket (Admin)",
+        "description": "Membatalkan tiket berdasarkan ticketID. Record seat terkait juga ikut dihapus dari database. Hanya Admin.",
+        "tags": [
+          "Ticket"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID tiket yang dibatalkan",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tiket berhasil dibatalkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/ticket/{id}": {
+      "get": {
+        "summary": "Ambil detail tiket berdasarkan ticket ID",
+        "description": "Mengembalikan detail tiket berdasarkan ticketID. User hanya dapat melihat tiket miliknya sendiri.",
+        "tags": [
+          "Ticket"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID tiket",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail tiket berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Ticket"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/subdistrict": {
+      "get": {
+        "summary": "Ambil semua data subdistrict / kecamatan",
+        "description": "Mengembalikan seluruh data kecamatan / wilayah.",
+        "tags": [
+          "Subdistrict"
+        ],
+        "responses": {
+          "200": {
+            "description": "Data kecamatan berhasil diambil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Data kecamatan berhasil diambil"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Subdistrict"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Gagal mengambil data kecamatan"
+          }
+        }
+      },
+      "post": {
+        "summary": "Tambah data subdistrict baru",
+        "description": "Menambahkan satu data kecamatan baru.",
+        "tags": [
+          "Subdistrict"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubdistrictRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Data kecamatan berhasil ditambahkan"
+          },
+          "500": {
+            "description": "Gagal menambahkan data kecamatan"
+          }
+        }
+      }
+    },
+    "/subdistrict/{id}": {
+      "get": {
+        "summary": "Ambil detail subdistrict berdasarkan ID",
+        "description": "Mengembalikan satu data kecamatan berdasarkan ID primary key.",
+        "tags": [
+          "Subdistrict"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID primary key kecamatan",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail kecamatan berhasil diambil"
+          },
+          "404": {
+            "description": "Data kecamatan tidak ditemukan"
+          },
+          "500": {
+            "description": "Gagal mengambil data kecamatan"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update data subdistrict berdasarkan ID",
+        "description": "Mengubah data kecamatan berdasarkan ID primary key.",
+        "tags": [
+          "Subdistrict"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID primary key kecamatan",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubdistrictRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Data kecamatan berhasil diubah"
+          },
+          "404": {
+            "description": "Data kecamatan tidak ditemukan"
+          },
+          "500": {
+            "description": "Gagal mengubah data kecamatan"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Hapus data subdistrict berdasarkan ID",
+        "description": "Menghapus data kecamatan berdasarkan ID primary key.",
+        "tags": [
+          "Subdistrict"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID primary key kecamatan",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data kecamatan berhasil dihapus"
+          },
+          "404": {
+            "description": "Data kecamatan tidak ditemukan"
+          },
+          "500": {
+            "description": "Gagal menghapus data kecamatan"
+          }
+        }
+      }
+    },
+    "/seat/event/{eventID}": {
+      "get": {
+        "summary": "Ambil semua seat berdasarkan event",
+        "description": "Mengembalikan semua kursi untuk suatu event beserta informasi event-nya. Admin dan user dapat mengakses.",
+        "tags": [
+          "Seat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eventID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID event",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data seat berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Seat"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/seat/": {
+      "get": {
+        "summary": "Ambil semua seat",
+        "description": "Mengembalikan seluruh data kursi. Admin dan user dapat mengakses.",
+        "tags": [
+          "Seat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data seat berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Seat"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      },
+      "post": {
+        "summary": "Tambah seat baru (Admin)",
+        "description": "Menambahkan seat/kursi baru untuk suatu event. Hanya Admin.",
+        "tags": [
+          "Seat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeatRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Seat berhasil ditambahkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Seat"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/seat/{id}": {
+      "put": {
+        "summary": "Update seat (Admin)",
+        "description": "Memperbarui data seat berdasarkan seatID. Hanya Admin.",
+        "tags": [
+          "Seat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID seat",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeatRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Seat berhasil diupdate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Hapus seat (Admin)",
+        "description": "Menghapus seat berdasarkan seatID. Akan ditolak jika seat masih direferensikan oleh tiket yang ada. Hanya Admin.",
+        "tags": [
+          "Seat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID seat",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Seat berhasil dihapus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Seat masih digunakan oleh tiket",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Seat masih digunakan oleh tiket dan tidak bisa dihapus"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/review/event/{eventID}/review": {
+      "post": {
+        "summary": "Buat ulasan untuk event",
+        "description": "Menambahkan ulasan untuk event tertentu. Syarat:\n- User harus login (memerlukan token)\n- User harus sudah pernah membeli tiket event ini\n- Setiap user hanya dapat memberikan 1 ulasan per event\n",
+        "tags": [
+          "Review"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eventID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID event yang akan diulas",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ulasan berhasil ditambahkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Ulasan berhasil ditambahkan!"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Review"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Rating tidak valid",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Rating harus diisi antara 1 sampai 5"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          },
+          "403": {
+            "description": "User belum membeli tiket atau sudah pernah review",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "belum_beli": {
+                    "value": {
+                      "success": false,
+                      "message": "Kamu harus membeli tiket event ini terlebih dahulu untuk memberi ulasan"
+                    }
+                  },
+                  "sudah_review": {
+                    "value": {
+                      "success": false,
+                      "message": "Kamu sudah pernah memberi ulasan untuk event ini"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event tidak ditemukan"
+          }
+        }
+      }
+    },
+    "/review/event/{eventID}/reviews": {
+      "get": {
+        "summary": "Ambil semua ulasan event",
+        "description": "Mengembalikan semua ulasan untuk event tertentu beserta rata-rata rating dan jumlah ulasan. Endpoint publik — tidak memerlukan token.",
+        "tags": [
+          "Review"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eventID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID event",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ulasan berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "eventID": {
+                      "type": "integer",
+                      "example": 1
+                    },
+                    "eventName": {
+                      "type": "string",
+                      "example": "Konser Malam Minggu"
+                    },
+                    "averageRating": {
+                      "type": "number",
+                      "example": 4.5
+                    },
+                    "totalReviews": {
+                      "type": "integer",
+                      "example": 10
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Review"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "reviewUser": {
+                                "type": "object",
+                                "properties": {
+                                  "userID": {
+                                    "type": "integer",
+                                    "example": 2
+                                  },
+                                  "firstname": {
+                                    "type": "string",
+                                    "example": "Budi"
+                                  },
+                                  "lastname": {
+                                    "type": "string",
+                                    "example": "Santoso"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event tidak ditemukan"
+          }
+        }
+      }
+    },
+    "/review/review/{reviewID}": {
+      "delete": {
+        "summary": "Hapus ulasan",
+        "description": "Menghapus ulasan berdasarkan reviewID.\n- **User:** hanya dapat menghapus ulasan miliknya sendiri\n- **Admin:** dapat menghapus ulasan siapapun\n",
+        "tags": [
+          "Review"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "reviewID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID ulasan yang akan dihapus",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ulasan berhasil dihapus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          },
+          "403": {
+            "description": "Tidak memiliki akses untuk menghapus ulasan ini",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Kamu tidak memiliki akses untuk menghapus ulasan ini"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ulasan tidak ditemukan"
+          }
+        }
+      }
+    },
+    "/event/revenue-stats": {
+      "get": {
+        "summary": "Statistik pendapatan (Admin)",
+        "description": "Mengembalikan total revenue keseluruhan, total tiket terjual, dan event dengan kontribusi revenue tertinggi. Hanya Admin.",
+        "tags": [
+          "Event"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistik berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total_revenue": {
+                          "type": "number",
+                          "example": 5000000
+                        },
+                        "total_tickets_sold": {
+                          "type": "integer",
+                          "example": 50
+                        },
+                        "top_contributor": {
+                          "type": "object",
+                          "properties": {
+                            "event_id": {
+                              "type": "integer",
+                              "example": 1
+                            },
+                            "nama_event": {
+                              "type": "string",
+                              "example": "Konser Malam Minggu"
+                            },
+                            "revenue_generated": {
+                              "type": "number",
+                              "example": 3000000
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/event/sales-stats": {
+      "get": {
+        "summary": "Statistik penjualan per event",
+        "description": "Mengembalikan semua event beserta jumlah tiket yang terjual (ticketsSold). Admin dan user dapat mengakses.",
+        "tags": [
+          "Event"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistik penjualan berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Event"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "ticketsSold": {
+                                "type": "integer",
+                                "example": 12
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/event/top-selling": {
+      "get": {
+        "summary": "Top 5 event dengan penjualan terbanyak",
+        "description": "Mengembalikan 5 event yang masih berlangsung (tanggal >= hari ini) dengan penjualan tiket terbanyak. Admin dan user dapat mengakses.",
+        "tags": [
+          "Event"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top 5 event berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "maxItems": 5,
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Event"
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "ticketsSold": {
+                                "type": "integer",
+                                "example": 20
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/event/": {
+      "get": {
+        "summary": "Ambil semua event",
+        "description": "Mengembalikan daftar seluruh event. Admin dan user dapat mengakses.",
+        "tags": [
+          "Event"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Daftar event berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Event"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      },
+      "post": {
+        "summary": "Tambah event baru (Admin)",
+        "description": "Menambahkan event baru beserta gambar cover. Gunakan **form-data** (bukan JSON) karena menyertakan upload file. Hanya Admin.\n",
+        "tags": [
+          "Event"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "eventName",
+                  "eventDate",
+                  "venue",
+                  "price",
+                  "image"
+                ],
+                "properties": {
+                  "eventName": {
+                    "type": "string",
+                    "example": "Konser Malam Minggu"
+                  },
+                  "eventDate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-12-31"
+                  },
+                  "venue": {
+                    "type": "string",
+                    "example": "Gelora Bung Karno"
+                  },
+                  "price": {
+                    "type": "integer",
+                    "example": 150000
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File gambar cover event"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event berhasil ditambahkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Event"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/event/{id}": {
+      "put": {
+        "summary": "Update event (Admin)",
+        "description": "Memperbarui data event. Gunakan **form-data**. Field `image` opsional — jika diisi, gambar lama akan otomatis dihapus dari disk. Hanya Admin.\n",
+        "tags": [
+          "Event"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID event",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "eventName": {
+                    "type": "string",
+                    "example": "Konser Updated"
+                  },
+                  "eventDate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2027-01-15"
+                  },
+                  "venue": {
+                    "type": "string",
+                    "example": "Istora Senayan"
+                  },
+                  "price": {
+                    "type": "integer",
+                    "example": 200000
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Opsional — isi jika ingin mengganti gambar"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Event berhasil diupdate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Hapus event (Admin)",
+        "description": "Menghapus event berdasarkan ID. File gambar terkait juga ikut dihapus dari disk. Hanya Admin.",
+        "tags": [
+          "Event"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID event",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event berhasil dihapus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/diskon/": {
+      "get": {
+        "summary": "Ambil semua diskon",
+        "description": "Mengembalikan seluruh data diskon beserta informasi event yang terkait. Admin dan user dapat mengakses.",
+        "tags": [
+          "Diskon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data diskon berhasil dimuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Diskon"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      },
+      "post": {
+        "summary": "Tambah diskon baru (Admin)",
+        "description": "Menambahkan diskon baru. Field `eventID` opsional —  jika diisi, diskon hanya berlaku untuk event tersebut. `tanggal_berlaku` adalah tanggal kadaluarsa diskon. Hanya Admin.\n",
+        "tags": [
+          "Diskon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiskonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Diskon berhasil ditambahkan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Diskon"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/diskon/{id}": {
+      "put": {
+        "summary": "Update diskon (Admin)",
+        "description": "Memperbarui data diskon berdasarkan id_diskon. Hanya Admin.",
+        "tags": [
+          "Diskon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID diskon (id_diskon)",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiskonRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Diskon berhasil diupdate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Hapus diskon (Admin)",
+        "description": "Menghapus diskon berdasarkan id_diskon. Hanya Admin.",
+        "tags": [
+          "Diskon"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID diskon (id_diskon)",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Diskon berhasil dihapus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/schemas/UnauthorizedResponse"
+          }
+        }
+      }
+    },
+    "/auth/": {
+      "post": {
+        "summary": "Login Admin",
+        "description": "Autentikasi sebagai admin menggunakan username dan password. Mengembalikan JWT token dengan role 'admin'.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginAdminRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                },
+                "example": {
+                  "success": true,
+                  "logged": true,
+                  "message": "Authentication Success",
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+              }
+            }
+          },
+          "200_failed": {
+            "description": "Login gagal (kredensial salah)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "logged": false,
+                  "message": "Authentication Failed. Invalid username or password"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/user": {
+      "post": {
+        "summary": "Login User",
+        "description": "Autentikasi sebagai user menggunakan email dan password. Mengembalikan JWT token dengan role 'user'.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "200_failed": {
+            "description": "Login gagal",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "logged": false,
+                  "message": "Authentication Failed. Invalid email or password"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
