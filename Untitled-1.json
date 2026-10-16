@@ -1,0 +1,1058 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "TIKET_SALES",
+		"description": "Postman Collection TIKET_SALES berisi 41 Endpoint lengkap beserta folder AUTH, USER, EVENT, SEAT, TICKET, DISKON, dan REVIEW.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "🔐 AUTH",
+			"item": [
+				{
+					"name": "Login Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login-admin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login-admin"
+							]
+						},
+						"description": "Route: /auth/login-admin\nController: authController.loginAdmin"
+					}
+				},
+				{
+					"name": "Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@gmail.com\",\n  \"password\": \"user123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login-user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login-user"
+							]
+						},
+						"description": "Route: /auth/login-user\nController: authController.loginUser"
+					}
+				}
+			]
+		},
+		{
+			"name": "👤 USER",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nama\": \"John Doe\",\n  \"email\": \"johndoe@gmail.com\",\n  \"password\": \"password123\",\n  \"telepon\": \"08123456789\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						},
+						"description": "Route: /user/register"
+					}
+				},
+				{
+					"name": "Get All",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Route: /user"
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"profile"
+							]
+						},
+						"description": "Route: /user/profile"
+					}
+				},
+				{
+					"name": "Get Profile by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/profile/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"profile",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /user/profile/:id"
+					}
+				},
+				{
+					"name": "Search (versi 1)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/search/:key",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"search",
+								":key"
+							],
+							"variable": [
+								{
+									"key": "key",
+									"value": "john"
+								}
+							]
+						},
+						"description": "Route: /user/search/:key"
+					}
+				},
+				{
+					"name": "Search (versi 2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/:key",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								":key"
+							],
+							"variable": [
+								{
+									"key": "key",
+									"value": "john"
+								}
+							]
+						},
+						"description": "Route: /user/:key (Alternative search endpoint)"
+					}
+				},
+				{
+					"name": "Add",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nama\": \"New User\",\n  \"email\": \"newuser@gmail.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user"
+							]
+						},
+						"description": "Route: /user"
+					}
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nama\": \"Updated User Name\",\n  \"telepon\": \"08987654321\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /user/:id"
+					}
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"oldPassword\": \"password123\",\n  \"newPassword\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/user/reset-password/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"reset-password",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /user/reset-password/:id"
+					}
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /user/:id"
+					}
+				},
+				{
+					"name": "Cancel Ticket",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/cancel-ticket/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"cancel-ticket",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /user/cancel-ticket/:id"
+					}
+				}
+			]
+		},
+		{
+			"name": "🎭 EVENT",
+			"item": [
+				{
+					"name": "Get All",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/event",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"event"
+							]
+						},
+						"description": "Route: /event"
+					}
+				},
+				{
+					"name": "Revenue Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/event/stats/revenue",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"event",
+								"stats",
+								"revenue"
+							]
+						},
+						"description": "Route: /event/stats/revenue"
+					}
+				},
+				{
+					"name": "Sales Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/event/stats/sales",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"event",
+								"stats",
+								"sales"
+							]
+						},
+						"description": "Route: /event/stats/sales"
+					}
+				},
+				{
+					"name": "Top Selling",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/event/stats/top-selling",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"event",
+								"stats",
+								"top-selling"
+							]
+						},
+						"description": "Route: /event/stats/top-selling"
+					}
+				},
+				{
+					"name": "Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/event/search/:key",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"event",
+								"search",
+								":key"
+							],
+							"variable": [
+								{
+									"key": "key",
+									"value": "konser"
+								}
+							]
+						},
+						"description": "Route: /event/search/:key"
+					}
+				},
+				{
+					"name": "Add",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nama_event\": \"Konser Musik 2026\",\n  \"tanggal\": \"2026-12-01\",\n  \"lokasi\": \"Jakarta\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/event",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"event"
+							]
+						},
+						"description": "Route: /event"
+					}
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nama_event\": \"Konser Musik Updated\",\n  \"lokasi\": \"Bandung\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/event/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"event",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /event/:id"
+					}
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/event/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"event",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /event/:id"
+					}
+				}
+			]
+		},
+		{
+			"name": "💺 SEAT",
+			"item": [
+				{
+					"name": "Get All",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/seat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat"
+							]
+						},
+						"description": "Route: /seat"
+					}
+				},
+				{
+					"name": "Get by Event",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/seat/event/:eventId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat",
+								"event",
+								":eventId"
+							],
+							"variable": [
+								{
+									"key": "eventId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /seat/event/:eventId"
+					}
+				},
+				{
+					"name": "Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/seat/search/:key",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat",
+								"search",
+								":key"
+							],
+							"variable": [
+								{
+									"key": "key",
+									"value": "VIP"
+								}
+							]
+						},
+						"description": "Route: /seat/search/:key"
+					}
+				},
+				{
+					"name": "Add",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event_id\": 1,\n  \"nomor_kursi\": \"A1\",\n  \"tipe\": \"VIP\",\n  \"harga\": 150000\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/seat",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat"
+							]
+						},
+						"description": "Route: /seat"
+					}
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"harga\": 200000\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/seat/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /seat/:id"
+					}
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/seat/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"seat",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /seat/:id"
+					}
+				}
+			]
+		},
+		{
+			"name": "🎟️ TICKET",
+			"item": [
+				{
+					"name": "Get All",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ticket",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ticket"
+							]
+						},
+						"description": "Route: /ticket"
+					}
+				},
+				{
+					"name": "Get by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ticket/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ticket",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /ticket/:id"
+					}
+				},
+				{
+					"name": "Get by User ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ticket/user/:userId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ticket",
+								"user",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /ticket/user/:userId"
+					}
+				},
+				{
+					"name": "Beli (User)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"seat_id\": 1,\n  \"user_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ticket/buy",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ticket",
+								"buy"
+							]
+						},
+						"description": "Route: /ticket/buy"
+					}
+				},
+				{
+					"name": "Beli (Admin+diskon)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"seat_id\": 1,\n  \"user_id\": 1,\n  \"kode_diskon\": \"PROMO50\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ticket/buy-admin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ticket",
+								"buy-admin"
+							]
+						},
+						"description": "Route: /ticket/buy-admin"
+					}
+				},
+				{
+					"name": "Cancel",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/ticket/cancel/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ticket",
+								"cancel",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /ticket/cancel/:id"
+					}
+				}
+			]
+		},
+		{
+			"name": "🏷️ DISKON",
+			"item": [
+				{
+					"name": "Get All",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/diskon",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"diskon"
+							]
+						},
+						"description": "Route: /diskon"
+					}
+				},
+				{
+					"name": "Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/diskon/search/:key",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"diskon",
+								"search",
+								":key"
+							],
+							"variable": [
+								{
+									"key": "key",
+									"value": "PROMO"
+								}
+							]
+						},
+						"description": "Route: /diskon/search/:key"
+					}
+				},
+				{
+					"name": "Add",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"kode\": \"PROMO50\",\n  \"potongan\": 50000\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/diskon",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"diskon"
+							]
+						},
+						"description": "Route: /diskon"
+					}
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"potongan\": 75000\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/diskon/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"diskon",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /diskon/:id"
+					}
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/diskon/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"diskon",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /diskon/:id"
+					}
+				}
+			]
+		},
+		{
+			"name": "⭐ REVIEW",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event_id\": 1,\n  \"user_id\": 1,\n  \"rating\": 5,\n  \"komentar\": \"Acara sangat menarik!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/review",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"review"
+							]
+						},
+						"description": "Route: /review"
+					}
+				},
+				{
+					"name": "Get All (public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/review",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"review"
+							]
+						},
+						"description": "Route: /review"
+					}
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/review/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"review",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Route: /review/:id"
+					}
+				}
+			]
+		}
+	]
+}

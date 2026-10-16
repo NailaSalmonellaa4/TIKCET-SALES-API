@@ -1,0 +1,70 @@
+### ==========================================
+### 🏷️ DISKON - Manajemen Diskon Tiket
+### File: routes/diskon.route.js
+### Controller: controllers/diskon.controller.js
+### ==========================================
+
+@baseUrl = http://localhost:8000
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@userToken = PASTE_USER_TOKEN_HERE
+
+### ──────────────────────────────────────────
+### Get Semua Diskon [Admin & User]
+### Route: GET /diskon/
+### Controller: getAllDiskon
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/diskon/
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Cari Diskon by Key [Admin & User]
+### Route: GET /diskon/:key
+### Controller: findDiskon
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/diskon/lebaran
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Tambah Diskon [Admin]
+### Route: POST /diskon/
+### Controller: addDiskon
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+POST {{baseUrl}}/diskon/
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "nama_diskon": "Promo Lebaran",
+  "nominal": 50000,
+  "tanggal_berlaku": "2027-04-01",
+  "eventID": 1
+}
+
+### ──────────────────────────────────────────
+### Update Diskon [Admin]
+### Route: PUT /diskon/:id
+### Controller: updateDiskon
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+PUT {{baseUrl}}/diskon/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "nama_diskon": "Promo Lebaran Updated",
+  "nominal": 75000,
+  "tanggal_berlaku": "2027-05-01",
+  "eventID": 1
+}
+
+### ──────────────────────────────────────────
+### Hapus Diskon [Admin]
+### Route: DELETE /diskon/:id
+### Controller: deleteDiskon
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+DELETE {{baseUrl}}/diskon/1
+Authorization: Bearer {{adminToken}}

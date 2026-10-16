@@ -1,0 +1,67 @@
+### ==========================================
+### 🏡 SUBDISTRICT - Manajemen Kecamatan / Wilayah
+### File: routes/subdistrict.route.js
+### Controller: controllers/subdistrict.controller.js
+### ==========================================
+
+@baseUrl = http://localhost:8000
+
+### ──────────────────────────────────────────
+### 1. Get Semua Data Kecamatan
+### Route: GET /subdistrict
+### Controller: getAll
+### ──────────────────────────────────────────
+GET {{baseUrl}}/subdistrict
+Content-Type: application/json
+
+### ──────────────────────────────────────────
+### 2. Get Detail Kecamatan by ID
+### Route: GET /subdistrict/:id
+### Controller: getById
+### ──────────────────────────────────────────
+GET {{baseUrl}}/subdistrict/1
+Content-Type: application/json
+
+### ──────────────────────────────────────────
+### 3. Tambah Kecamatan Baru
+### Route: POST /subdistrict
+### Controller: create
+### ──────────────────────────────────────────
+POST {{baseUrl}}/subdistrict
+Content-Type: application/json
+
+{
+  "subdistrict_id": "1",
+  "province_id": "11",
+  "province": "Aceh",
+  "city_id": "1",
+  "city": "Aceh Barat",
+  "type": "Kabupaten",
+  "subdistrict_name": "Johan Pahlawan"
+}
+
+### ──────────────────────────────────────────
+### 4. Update Data Kecamatan
+### Route: PUT /subdistrict/:id
+### Controller: update
+### ──────────────────────────────────────────
+PUT {{baseUrl}}/subdistrict/1
+Content-Type: application/json
+
+{
+  "subdistrict_id": "1",
+  "province_id": "11",
+  "province": "Aceh",
+  "city_id": "1",
+  "city": "Aceh Barat",
+  "type": "Kabupaten",
+  "subdistrict_name": "Johan Pahlawan Updated"
+}
+
+### ──────────────────────────────────────────
+### 5. Hapus Data Kecamatan
+### Route: DELETE /subdistrict/:id
+### Controller: delete
+### ──────────────────────────────────────────
+DELETE {{baseUrl}}/subdistrict/1
+Content-Type: application/json

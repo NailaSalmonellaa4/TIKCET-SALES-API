@@ -1,0 +1,104 @@
+### ==========================================
+### 🎭 EVENT - Manajemen Event
+### File: routes/event.route.js
+### Controller: controllers/event.controller.js
+### ==========================================
+
+@baseUrl = http://localhost:8000
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@userToken = PASTE_USER_TOKEN_HERE
+
+### ──────────────────────────────────────────
+### Get Semua Event [Admin & User]
+### Route: GET /event/
+### Controller: getAllEvent
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/event/
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Get Revenue Stats [Admin]
+### Route: GET /event/revenue-stats
+### Controller: getRevenueStats
+### Middleware: authorize, allowRoles('admin')
+### Total revenue, total tiket terjual, top contributor
+### ──────────────────────────────────────────
+GET {{baseUrl}}/event/revenue-stats
+Authorization: Bearer {{adminToken}}
+
+### ──────────────────────────────────────────
+### Get Sales Stats [Admin & User]
+### Route: GET /event/sales-stats
+### Controller: getEventSalesStats
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/event/sales-stats
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Get Top Selling Events [Admin & User]
+### Route: GET /event/top-selling
+### Controller: getTopSellingEvents
+### Middleware: authorize, allowRoles('admin', 'user')
+### Top 5 event yang masih berlangsung
+### ──────────────────────────────────────────
+GET {{baseUrl}}/event/top-selling
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Cari Event by Key [Admin & User]
+### Route: GET /event/:key
+### Controller: findEvent
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/event/konser
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Tambah Event [Admin]
+### Route: POST /event/
+### Controller: addEvent
+### Middleware: authorize, allowRoles('admin')
+### Catatan: Gunakan form-data untuk upload gambar.
+### REST Client tidak support file upload,
+### gunakan Postman untuk endpoint ini.
+### ──────────────────────────────────────────
+POST {{baseUrl}}/event/
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "eventName": "Konser Malam Minggu",
+  "eventDate": "2026-12-31",
+  "venue": "Gelora Bung Karno",
+  "price": 150000
+}
+
+### ──────────────────────────────────────────
+### Update Event [Admin]
+### Route: PUT /event/:id
+### Controller: updateEvent
+### Middleware: authorize, allowRoles('admin')
+### Catatan: Gunakan form-data untuk ganti gambar.
+### ──────────────────────────────────────────
+PUT {{baseUrl}}/event/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "eventName": "Konser Updated",
+  "eventDate": "2027-01-15",
+  "venue": "Istora Senayan",
+  "price": 200000
+}
+
+### ──────────────────────────────────────────
+### Hapus Event [Admin]
+### Route: DELETE /event/:id
+### Controller: deleteEvent
+### Middleware: authorize, allowRoles('admin')
+### File gambar ikut dihapus dari disk
+### ──────────────────────────────────────────
+DELETE {{baseUrl}}/event/1
+Authorization: Bearer {{adminToken}}

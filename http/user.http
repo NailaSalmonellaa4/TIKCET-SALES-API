@@ -1,0 +1,141 @@
+### ==========================================
+### 👤 USER - Manajemen Data Pengguna
+### File: routes/user.route.js
+### Controller: controllers/user.controller.js
+### ==========================================
+
+@baseUrl = http://localhost:8000
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@userToken = PASTE_USER_TOKEN_HERE
+
+### ──────────────────────────────────────────
+### Register User Baru [PUBLIC]
+### Route: POST /user/register
+### Controller: registerUser
+### Middleware: validateUser (express-validator)
+### Tidak butuh token
+### ──────────────────────────────────────────
+POST {{baseUrl}}/user/register
+Content-Type: application/json
+
+{
+  "firstname": "Budi",
+  "lastname": "Santoso",
+  "email": "budi@example.com",
+  "password": "password123"
+}
+
+### ──────────────────────────────────────────
+### Get Semua User [Admin]
+### Route: GET /user/
+### Controller: getAllUser
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/user/
+Authorization: Bearer {{adminToken}}
+
+### ──────────────────────────────────────────
+### Get Profile Sendiri [Admin & User]
+### Route: GET /user/profile
+### Controller: getUserProfile
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/user/profile
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Get Profile by ID [Admin & User]
+### Route: GET /user/profile/:id
+### Controller: getUserProfile
+### Middleware: authorize, allowRoles('admin', 'user')
+### Admin bisa lihat semua, user hanya profil sendiri
+### ──────────────────────────────────────────
+GET {{baseUrl}}/user/profile/1
+Authorization: Bearer {{adminToken}}
+
+### ──────────────────────────────────────────
+### Cari User by Key (via /search) [Admin]
+### Route: GET /user/search/:key
+### Controller: findUser
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/user/search/budi
+Authorization: Bearer {{adminToken}}
+
+### ──────────────────────────────────────────
+### Cari User by Key (via /:key) [Admin]
+### Route: GET /user/:key
+### Controller: findUser
+### Middleware: authorize, allowRoles('admin')
+### Alternatif dari /user/search/:key
+### ──────────────────────────────────────────
+GET {{baseUrl}}/user/budi
+Authorization: Bearer {{adminToken}}
+
+### ──────────────────────────────────────────
+### Tambah User [Admin]
+### Route: POST /user/
+### Controller: addUser
+### Middleware: authorize, allowRoles('admin')
+### Field 'role' opsional, default 'user'
+### ──────────────────────────────────────────
+POST {{baseUrl}}/user/
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "firstname": "Siti",
+  "lastname": "Rahayu",
+  "email": "siti@example.com",
+  "password": "password123",
+  "role": "user"
+}
+
+### ──────────────────────────────────────────
+### Update User [Admin]
+### Route: PUT /user/:id
+### Controller: updateUser
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+PUT {{baseUrl}}/user/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "firstname": "Siti",
+  "lastname": "Rahayu Updated",
+  "email": "siti.updated@example.com",
+  "role": "user"
+}
+
+### ──────────────────────────────────────────
+### Reset Password User [Admin]
+### Route: PUT /user/reset-password/:id
+### Controller: resetPassword
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+PUT {{baseUrl}}/user/reset-password/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "password": "newpassword123"
+}
+
+### ──────────────────────────────────────────
+### Hapus User [Admin]
+### Route: DELETE /user/:id
+### Controller: deleteUser
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+DELETE {{baseUrl}}/user/1
+Authorization: Bearer {{adminToken}}
+
+### ──────────────────────────────────────────
+### Batalkan Tiket via User Route [Admin & User]
+### Route: DELETE /user/ticket/cancel/:id
+### Controller: cancelTicket (delegasi ke ticket.controller)
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+DELETE {{baseUrl}}/user/ticket/cancel/1
+Authorization: Bearer {{userToken}}

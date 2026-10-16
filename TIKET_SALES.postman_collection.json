@@ -1,0 +1,828 @@
+{
+  "info": {
+    "_postman_id": "tiket-sales-api-collection",
+    "name": "TIKET SALES API",
+    "description": "Koleksi lengkap semua endpoint API Tiket Sales. Server berjalan di http://localhost:8000.\n\n## Cara Penggunaan\n1. Import file ini ke Postman / Postman di VS Code\n2. Pastikan variable `baseUrl` = `http://localhost:8000` (sudah diset)\n3. Login dulu via POST /auth/ (admin) atau POST /auth/user (user)\n4. Salin token dari response ke variable `adminToken` atau `userToken`\n5. Semua endpoint protected sudah otomatis pakai variable token tersebut di header Authorization\n\n## Catatan Migrasi\nJika tabel reviews / subdistricts belum ada, jalankan: npx sequelize-cli db:migrate\n\n## Daftar Endpoint\n- AUTH: 2 endpoint\n- USER: 11 endpoint\n- EVENT: 8 endpoint\n- SEAT: 7 endpoint\n- TICKET: 5 endpoint\n- DISKON: 5 endpoint\n- REVIEW: 3 endpoint\n- SUBDISTRICT: 5 endpoint\n\nTotal: 46 endpoint",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "PASTE_ADMIN_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "userToken",
+      "value": "PASTE_USER_TOKEN_HERE",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 AUTH",
+      "description": "Endpoint autentikasi. Tidak membutuhkan token.\n\nFile: routes/auth.route.js\nController: controllers/auth.controller.js",
+      "item": [
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Login sebagai Admin. Response berisi JWT token dengan role 'admin'. Salin token ke variable adminToken.\n\nRoute: POST /auth/\nController: authenticate\nMiddleware: -"
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "user"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Login sebagai User biasa. Response berisi JWT token dengan role 'user'. Salin token ke variable userToken.\n\nRoute: POST /auth/user\nController: authenticateUser\nMiddleware: -"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 USER",
+      "description": "Manajemen data pengguna. Prefix: /user\n\nFile: routes/user.route.js\nController: controllers/user.controller.js\nMiddleware: authorize, allowRoles, validateUser",
+      "item": [
+        {
+          "name": "Register User Baru [PUBLIC]",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": {
+              "raw": "{{baseUrl}}/user/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "register"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Budi\",\n  \"lastname\": \"Santoso\",\n  \"email\": \"budi@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Registrasi akun user baru. Tidak butuh token (public). Validasi input menggunakan express-validator.\n\nRoute: POST /user/register\nController: registerUser\nMiddleware: validateUser"
+          }
+        },
+        {
+          "name": "Get Semua User [Admin]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/user/",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", ""]
+            },
+            "description": "Ambil semua data user. Hanya Admin.\n\nRoute: GET /user/\nController: getAllUser\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Get Profile Sendiri [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "profile"]
+            },
+            "description": "Ambil profil diri sendiri dari JWT token. Admin & user bisa akses.\n\nRoute: GET /user/profile\nController: getUserProfile\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Get Profile by ID [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/user/profile/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "profile", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Ambil profil user berdasarkan ID. Admin bisa lihat semua, user hanya bisa lihat profil sendiri.\n\nRoute: GET /user/profile/:id\nController: getUserProfile\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Cari User by Key (via /search) [Admin]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/user/search/:key",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "search", ":key"],
+              "variable": [{ "key": "key", "value": "budi" }]
+            },
+            "description": "Cari user berdasarkan nama, email, atau role. Hanya Admin. Ini adalah rute eksplisit /search/:key.\n\nRoute: GET /user/search/:key\nController: findUser\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Cari User by Key (via /:key) [Admin]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/user/:key",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", ":key"],
+              "variable": [{ "key": "key", "value": "budi" }]
+            },
+            "description": "Cari user berdasarkan keyword (alternatif dari /user/search/:key). Controller yang sama: findUser. Hanya Admin.\n\nRoute: GET /user/:key\nController: findUser\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Tambah User [Admin]",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Siti\",\n  \"lastname\": \"Rahayu\",\n  \"email\": \"siti@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"user\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Tambah user baru oleh Admin. Field 'role' opsional, default 'user'.\n\nRoute: POST /user/\nController: addUser\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Update User [Admin]",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstname\": \"Siti\",\n  \"lastname\": \"Rahayu Updated\",\n  \"email\": \"siti.updated@example.com\",\n  \"role\": \"user\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update data user berdasarkan ID. Hanya Admin. Field password opsional — jika diisi, akan di-hash ulang.\n\nRoute: PUT /user/:id\nController: updateUser\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Reset Password User [Admin]",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/user/reset-password/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "reset-password", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"newpassword123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Reset password user berdasarkan ID. Hanya Admin.\n\nRoute: PUT /user/reset-password/:id\nController: resetPassword\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Hapus User [Admin]",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/user/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Hapus user berdasarkan ID. Hanya Admin.\n\nRoute: DELETE /user/:id\nController: deleteUser\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Batalkan Tiket via User Route [Admin & User]",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/user/ticket/cancel/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "ticket", "cancel", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Batalkan tiket via route user. Admin & user bisa akses. Mendelegasikan ke ticket controller cancelTicket.\n\nRoute: DELETE /user/ticket/cancel/:id\nController: cancelTicket (delegasi ke ticket.controller.cancelTicket)\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎭 EVENT",
+      "description": "Manajemen event. Prefix: /event\n\nFile: routes/event.route.js\nController: controllers/event.controller.js\nMiddleware: authorize, allowRoles",
+      "item": [
+        {
+          "name": "Get Semua Event [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/event/",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ""]
+            },
+            "description": "Ambil semua data event.\n\nRoute: GET /event/\nController: getAllEvent\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Get Revenue Stats [Admin]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/event/revenue-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", "revenue-stats"]
+            },
+            "description": "Statistik total revenue, total tiket terjual, dan event dengan revenue tertinggi. Hanya Admin.\n\nRoute: GET /event/revenue-stats\nController: getRevenueStats\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Get Sales Stats [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/event/sales-stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", "sales-stats"]
+            },
+            "description": "Statistik penjualan tiket per event.\n\nRoute: GET /event/sales-stats\nController: getEventSalesStats\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Get Top Selling Events [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/event/top-selling",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", "top-selling"]
+            },
+            "description": "Top 5 event yang masih berlangsung berdasarkan penjualan tiket terbanyak.\n\nRoute: GET /event/top-selling\nController: getTopSellingEvents\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Cari Event by Key [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/event/:key",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":key"],
+              "variable": [{ "key": "key", "value": "konser" }]
+            },
+            "description": "Cari event berdasarkan nama, tanggal, venue, atau harga.\n\nRoute: GET /event/:key\nController: findEvent\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Tambah Event [Admin]",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/event/",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ""]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "eventName", "value": "Konser Malam Minggu", "type": "text" },
+                { "key": "eventDate", "value": "2026-12-31", "type": "text" },
+                { "key": "venue", "value": "Gelora Bung Karno", "type": "text" },
+                { "key": "price", "value": "150000", "type": "text" },
+                { "key": "image", "type": "file", "src": "" }
+              ]
+            },
+            "description": "Tambah event baru. Gunakan form-data karena ada upload gambar (field 'image'). Hanya Admin.\n\nRoute: POST /event/\nController: addEvent\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Update Event [Admin]",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/event/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "eventName", "value": "Konser Updated", "type": "text" },
+                { "key": "eventDate", "value": "2027-01-15", "type": "text" },
+                { "key": "venue", "value": "Istora Senayan", "type": "text" },
+                { "key": "price", "value": "200000", "type": "text" },
+                { "key": "image", "type": "file", "src": "", "description": "Opsional — isi jika ingin ganti gambar" }
+              ]
+            },
+            "description": "Update event. Field 'image' opsional. Hanya Admin.\n\nRoute: PUT /event/:id\nController: updateEvent\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Hapus Event [Admin]",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/event/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Hapus event. File gambar ikut dihapus dari disk. Hanya Admin.\n\nRoute: DELETE /event/:id\nController: deleteEvent\nMiddleware: authorize, allowRoles('admin')"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💺 SEAT",
+      "description": "Manajemen kursi event. Prefix: /seat\n\nFile: routes/seat.route.js\nController: controllers/seat.controller.js\nMiddleware: authorize, allowRoles",
+      "item": [
+        {
+          "name": "Get Semua Seat [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/seat/",
+              "host": ["{{baseUrl}}"],
+              "path": ["seat", ""]
+            },
+            "description": "Ambil semua data seat.\n\nRoute: GET /seat/\nController: getAllSeat\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Get Seat by Event ID [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/seat/event/:eventID",
+              "host": ["{{baseUrl}}"],
+              "path": ["seat", "event", ":eventID"],
+              "variable": [{ "key": "eventID", "value": "1" }]
+            },
+            "description": "Ambil semua seat dari event tertentu beserta info event.\n\nRoute: GET /seat/event/:eventID\nController: getSeatByEvent\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Cari Seat by Key [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/seat/:key",
+              "host": ["{{baseUrl}}"],
+              "path": ["seat", ":key"],
+              "variable": [{ "key": "key", "value": "A" }]
+            },
+            "description": "Cari seat berdasarkan rowNum, seatNum, atau status.\n\nRoute: GET /seat/:key\nController: findSeat\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Tambah Seat [Admin]",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/seat/",
+              "host": ["{{baseUrl}}"],
+              "path": ["seat", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventID\": 1,\n  \"rowNum\": \"A\",\n  \"seatNum\": 1,\n  \"status\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Tambah seat baru. Field 'status' opsional (default false). Hanya Admin.\n\nRoute: POST /seat/\nController: addSeat\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Update Seat [Admin]",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/seat/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["seat", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventID\": 1,\n  \"rowNum\": \"B\",\n  \"seatNum\": 5,\n  \"status\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update data seat berdasarkan seatID. Hanya Admin.\n\nRoute: PUT /seat/:id\nController: updateSeat\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Hapus Seat [Admin]",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/seat/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["seat", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Hapus seat. Akan ditolak jika seat masih direferensikan oleh tiket. Hanya Admin.\n\nRoute: DELETE /seat/:id\nController: deleteSeat\nMiddleware: authorize, allowRoles('admin')"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎟️ TICKET",
+      "description": "Pembelian dan manajemen tiket. Prefix: /ticket\n\nFile: routes/ticket.route.js\nController: controllers/ticket.controller.js\nMiddleware: authorize, allowRoles",
+      "item": [
+        {
+          "name": "Get Semua Tiket [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/ticket/",
+              "host": ["{{baseUrl}}"],
+              "path": ["ticket", ""]
+            },
+            "description": "Admin melihat semua tiket; user hanya melihat tiket miliknya (filter otomatis dari token).\n\nRoute: GET /ticket/\nController: getAllTicket\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Get Tiket by Ticket ID [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/ticket/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["ticket", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Detail tiket berdasarkan ticketID. User hanya bisa lihat tiket miliknya.\n\nRoute: GET /ticket/:id\nController: ticketByID\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Get Tiket by User ID [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/ticket/user/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["ticket", "user", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Riwayat tiket user tertentu. User hanya bisa lihat miliknya (ID divalidasi vs token).\n\nRoute: GET /ticket/user/:id\nController: getUserTickets\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Beli Tiket - Sebagai User [Admin & User]",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{userToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ticket/",
+              "host": ["{{baseUrl}}"],
+              "path": ["ticket", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventID\": 1,\n  \"seats\": [\n    { \"rowNum\": \"A\", \"seatNum\": 1 },\n    { \"rowNum\": \"A\", \"seatNum\": 2 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Beli tiket sebagai user. Field 'userID' tidak perlu diisi — otomatis dari token JWT. Field 'id_diskon' opsional.\n\nRoute: POST /ticket/\nController: addTicket\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Beli Tiket - Sebagai Admin (dengan diskon) [Admin]",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ticket/",
+              "host": ["{{baseUrl}}"],
+              "path": ["ticket", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventID\": 1,\n  \"userID\": 2,\n  \"seats\": [\n    { \"rowNum\": \"B\", \"seatNum\": 3 }\n  ],\n  \"id_diskon\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Beli tiket sebagai Admin — bisa tentukan 'userID' untuk user lain. Field 'id_diskon' opsional.\n\nRoute: POST /ticket/\nController: addTicket\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Batalkan Tiket [Admin]",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/ticket/cancel/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["ticket", "cancel", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Batalkan tiket berdasarkan ticketID. Seat terkait juga ikut dihapus. Hanya Admin.\n\nRoute: DELETE /ticket/cancel/:id\nController: cancelTicket\nMiddleware: authorize, allowRoles('admin')"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏷️ DISKON",
+      "description": "Manajemen diskon tiket. Prefix: /diskon\n\nFile: routes/diskon.route.js\nController: controllers/diskon.controller.js\nMiddleware: authorize, allowRoles",
+      "item": [
+        {
+          "name": "Get Semua Diskon [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/diskon/",
+              "host": ["{{baseUrl}}"],
+              "path": ["diskon", ""]
+            },
+            "description": "Ambil semua diskon beserta event yang terkait.\n\nRoute: GET /diskon/\nController: getAllDiskon\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Cari Diskon by Key [Admin & User]",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/diskon/:key",
+              "host": ["{{baseUrl}}"],
+              "path": ["diskon", ":key"],
+              "variable": [{ "key": "key", "value": "lebaran" }]
+            },
+            "description": "Cari diskon berdasarkan nama_diskon atau nominal.\n\nRoute: GET /diskon/:key\nController: findDiskon\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Tambah Diskon [Admin]",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/diskon/",
+              "host": ["{{baseUrl}}"],
+              "path": ["diskon", ""]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_diskon\": \"Promo Lebaran\",\n  \"nominal\": 50000,\n  \"tanggal_berlaku\": \"2027-04-01\",\n  \"eventID\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Tambah diskon baru. 'eventID' opsional (jika diisi, diskon hanya berlaku untuk event itu). 'tanggal_berlaku' adalah tanggal kadaluarsa. Hanya Admin.\n\nRoute: POST /diskon/\nController: addDiskon\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Update Diskon [Admin]",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/diskon/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["diskon", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_diskon\": \"Promo Lebaran Updated\",\n  \"nominal\": 75000,\n  \"tanggal_berlaku\": \"2027-05-01\",\n  \"eventID\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Update diskon berdasarkan id_diskon. Hanya Admin.\n\nRoute: PUT /diskon/:id\nController: updateDiskon\nMiddleware: authorize, allowRoles('admin')"
+          }
+        },
+        {
+          "name": "Hapus Diskon [Admin]",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/diskon/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["diskon", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Hapus diskon berdasarkan id_diskon. Hanya Admin.\n\nRoute: DELETE /diskon/:id\nController: deleteDiskon\nMiddleware: authorize, allowRoles('admin')"
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ REVIEW",
+      "description": "Ulasan event oleh user. Prefix: /review\n\nFile: routes/review.routes.js\nController: controllers/reviewController.js\nMiddleware: authorize, allowRoles\n\nCatatan: Jalankan migrasi terlebih dahulu jika tabel reviews belum ada:\nnpx sequelize-cli db:migrate",
+      "item": [
+        {
+          "name": "Buat Ulasan Event [Admin & User]",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{userToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/review/event/:eventID/review",
+              "host": ["{{baseUrl}}"],
+              "path": ["review", "event", ":eventID", "review"],
+              "variable": [{ "key": "eventID", "value": "1" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Event yang sangat bagus!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Buat ulasan untuk event. Syarat:\n- Harus login (butuh token)\n- Harus sudah pernah beli tiket event ini\n- Hanya bisa review 1x per event\n- 'rating' wajib (1–5), 'comment' opsional\n\nRoute: POST /review/event/:eventID/review\nController: createReview\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        },
+        {
+          "name": "Get Semua Ulasan Event [PUBLIC]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/review/event/:eventID/reviews",
+              "host": ["{{baseUrl}}"],
+              "path": ["review", "event", ":eventID", "reviews"],
+              "variable": [{ "key": "eventID", "value": "1" }]
+            },
+            "description": "Ambil semua ulasan untuk suatu event beserta rata-rata rating. Tidak butuh token (public).\n\nRoute: GET /review/event/:eventID/reviews\nController: getEventReviews\nMiddleware: - (public)"
+          }
+        },
+        {
+          "name": "Hapus Ulasan [Admin & User]",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/review/review/:reviewID",
+              "host": ["{{baseUrl}}"],
+              "path": ["review", "review", ":reviewID"],
+              "variable": [{ "key": "reviewID", "value": "1" }]
+            },
+            "description": "Hapus ulasan berdasarkan reviewID. User hanya bisa hapus ulasannya sendiri. Admin bisa hapus ulasan siapapun.\n\nRoute: DELETE /review/review/:reviewID\nController: deleteReview\nMiddleware: authorize, allowRoles('admin', 'user')"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏡 SUBDISTRICT",
+      "description": "Manajemen data kecamatan / wilayah. Prefix: /subdistrict\n\nFile: routes/subdistrict.route.js\nController: controllers/subdistrict.controller.js\nCatatan: Jalankan migrasi jika tabel subdistricts belum ada:\nnpx sequelize-cli db:migrate",
+      "item": [
+        {
+          "name": "Get Semua Subdistrict",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subdistrict",
+              "host": ["{{baseUrl}}"],
+              "path": ["subdistrict"]
+            },
+            "description": "Mengambil seluruh data kecamatan.\n\nRoute: GET /subdistrict\nController: getAll"
+          }
+        },
+        {
+          "name": "Get Subdistrict by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subdistrict/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["subdistrict", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Mengambil detail kecamatan berdasarkan ID primary key.\n\nRoute: GET /subdistrict/:id\nController: getById"
+          }
+        },
+        {
+          "name": "Tambah Subdistrict",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/subdistrict",
+              "host": ["{{baseUrl}}"],
+              "path": ["subdistrict"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subdistrict_id\": \"1\",\n  \"province_id\": \"11\",\n  \"province\": \"Aceh\",\n  \"city_id\": \"1\",\n  \"city\": \"Aceh Barat\",\n  \"type\": \"Kabupaten\",\n  \"subdistrict_name\": \"Johan Pahlawan\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Menambahkan data kecamatan baru.\n\nRoute: POST /subdistrict\nController: create"
+          }
+        },
+        {
+          "name": "Update Subdistrict",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/subdistrict/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["subdistrict", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subdistrict_id\": \"1\",\n  \"province_id\": \"11\",\n  \"province\": \"Aceh\",\n  \"city_id\": \"1\",\n  \"city\": \"Aceh Barat\",\n  \"type\": \"Kabupaten\",\n  \"subdistrict_name\": \"Johan Pahlawan Updated\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Mengubah data kecamatan berdasarkan ID.\n\nRoute: PUT /subdistrict/:id\nController: update"
+          }
+        },
+        {
+          "name": "Hapus Subdistrict",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subdistrict/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["subdistrict", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            },
+            "description": "Menghapus data kecamatan berdasarkan ID.\n\nRoute: DELETE /subdistrict/:id\nController: delete"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+### ==========================================
+### ⭐ REVIEW - Ulasan Event
+### File: routes/review.routes.js
+### Controller: controllers/reviewController.js
+### Catatan: Jalankan migrasi dulu jika tabel
+### reviews belum ada:
+### npx sequelize-cli db:migrate
+### ==========================================
+
+@baseUrl = http://localhost:8000
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@userToken = PASTE_USER_TOKEN_HERE
+
+### ──────────────────────────────────────────
+### Buat Ulasan Event [Admin & User]
+### Route: POST /review/event/:eventID/review
+### Controller: createReview
+### Middleware: authorize, allowRoles('admin', 'user')
+### Syarat: Harus sudah beli tiket event ini,
+### hanya bisa review 1x per event
+### ──────────────────────────────────────────
+POST {{baseUrl}}/review/event/1/review
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "comment": "Event yang sangat bagus!"
+}
+
+### ──────────────────────────────────────────
+### Get Semua Ulasan Event [PUBLIC]
+### Route: GET /review/event/:eventID/reviews
+### Controller: getEventReviews
+### Middleware: - (public, tanpa token)
+### ──────────────────────────────────────────
+GET {{baseUrl}}/review/event/1/reviews
+
+### ──────────────────────────────────────────
+### Hapus Ulasan [Admin & User]
+### Route: DELETE /review/review/:reviewID
+### Controller: deleteReview
+### Middleware: authorize, allowRoles('admin', 'user')
+### User hanya bisa hapus ulasan sendiri,
+### Admin bisa hapus ulasan siapapun
+### ──────────────────────────────────────────
+DELETE {{baseUrl}}/review/review/1
+Authorization: Bearer {{userToken}}

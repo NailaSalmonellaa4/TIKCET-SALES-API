@@ -1,0 +1,89 @@
+### ==========================================
+### 🎟️ TICKET - Pembelian & Manajemen Tiket
+### File: routes/ticket.route.js
+### Controller: controllers/ticket.controller.js
+### ==========================================
+
+@baseUrl = http://localhost:8000
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@userToken = PASTE_USER_TOKEN_HERE
+
+### ──────────────────────────────────────────
+### Get Semua Tiket [Admin & User]
+### Route: GET /ticket/
+### Controller: getAllTicket
+### Middleware: authorize, allowRoles('admin', 'user')
+### Admin: semua tiket, User: tiket miliknya saja
+### ──────────────────────────────────────────
+GET {{baseUrl}}/ticket/
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Get Tiket by Ticket ID [Admin & User]
+### Route: GET /ticket/:id
+### Controller: ticketByID
+### Middleware: authorize, allowRoles('admin', 'user')
+### User hanya bisa lihat tiket miliknya
+### ──────────────────────────────────────────
+GET {{baseUrl}}/ticket/1
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Get Tiket by User ID [Admin & User]
+### Route: GET /ticket/user/:id
+### Controller: getUserTickets
+### Middleware: authorize, allowRoles('admin', 'user')
+### Riwayat tiket user tertentu
+### ──────────────────────────────────────────
+GET {{baseUrl}}/ticket/user/1
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Beli Tiket - Sebagai User [Admin & User]
+### Route: POST /ticket/
+### Controller: addTicket
+### Middleware: authorize, allowRoles('admin', 'user')
+### userID otomatis dari token JWT
+### id_diskon opsional
+### ──────────────────────────────────────────
+POST {{baseUrl}}/ticket/
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "eventID": 1,
+  "seats": [
+    { "rowNum": "A", "seatNum": 1 },
+    { "rowNum": "A", "seatNum": 2 }
+  ]
+}
+
+### ──────────────────────────────────────────
+### Beli Tiket - Sebagai Admin (dengan diskon) [Admin]
+### Route: POST /ticket/
+### Controller: addTicket
+### Middleware: authorize, allowRoles('admin', 'user')
+### Admin bisa tentukan userID & id_diskon
+### ──────────────────────────────────────────
+POST {{baseUrl}}/ticket/
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "eventID": 1,
+  "userID": 2,
+  "seats": [
+    { "rowNum": "B", "seatNum": 3 }
+  ],
+  "id_diskon": 1
+}
+
+### ──────────────────────────────────────────
+### Batalkan Tiket [Admin]
+### Route: DELETE /ticket/cancel/:id
+### Controller: cancelTicket
+### Middleware: authorize, allowRoles('admin')
+### Seat terkait juga ikut dihapus
+### ──────────────────────────────────────────
+DELETE {{baseUrl}}/ticket/cancel/1
+Authorization: Bearer {{adminToken}}

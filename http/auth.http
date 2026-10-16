@@ -1,0 +1,38 @@
+### ==========================================
+### 🔐 AUTH - Endpoint Autentikasi
+### File: routes/auth.route.js
+### Controller: controllers/auth.controller.js
+### Tidak membutuhkan token
+### ==========================================
+
+@baseUrl = http://localhost:8000
+
+### ──────────────────────────────────────────
+### Login Admin
+### Route: POST /auth/
+### Controller: authenticate
+### Middleware: -
+### Response: JWT token dengan role 'admin'
+### ──────────────────────────────────────────
+POST {{baseUrl}}/auth/
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### ──────────────────────────────────────────
+### Login User
+### Route: POST /auth/user
+### Controller: authenticateUser
+### Middleware: -
+### Response: JWT token dengan role 'user'
+### ──────────────────────────────────────────
+POST {{baseUrl}}/auth/user
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}

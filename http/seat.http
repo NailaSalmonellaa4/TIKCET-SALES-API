@@ -1,0 +1,79 @@
+### ==========================================
+### 💺 SEAT - Manajemen Kursi Event
+### File: routes/seat.route.js
+### Controller: controllers/seat.controller.js
+### ==========================================
+
+@baseUrl = http://localhost:8000
+@adminToken = PASTE_ADMIN_TOKEN_HERE
+@userToken = PASTE_USER_TOKEN_HERE
+
+### ──────────────────────────────────────────
+### Get Semua Seat [Admin & User]
+### Route: GET /seat/
+### Controller: getAllSeat
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/seat/
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Get Seat by Event ID [Admin & User]
+### Route: GET /seat/event/:eventID
+### Controller: getSeatByEvent
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/seat/event/1
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Cari Seat by Key [Admin & User]
+### Route: GET /seat/:key
+### Controller: findSeat
+### Middleware: authorize, allowRoles('admin', 'user')
+### ──────────────────────────────────────────
+GET {{baseUrl}}/seat/A
+Authorization: Bearer {{userToken}}
+
+### ──────────────────────────────────────────
+### Tambah Seat [Admin]
+### Route: POST /seat/
+### Controller: addSeat
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+POST {{baseUrl}}/seat/
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "eventID": 1,
+  "rowNum": "A",
+  "seatNum": 1,
+  "status": false
+}
+
+### ──────────────────────────────────────────
+### Update Seat [Admin]
+### Route: PUT /seat/:id
+### Controller: updateSeat
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+PUT {{baseUrl}}/seat/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "eventID": 1,
+  "rowNum": "B",
+  "seatNum": 5,
+  "status": true
+}
+
+### ──────────────────────────────────────────
+### Hapus Seat [Admin]
+### Route: DELETE /seat/:id
+### Controller: deleteSeat
+### Middleware: authorize, allowRoles('admin')
+### ──────────────────────────────────────────
+DELETE {{baseUrl}}/seat/1
+Authorization: Bearer {{adminToken}}
